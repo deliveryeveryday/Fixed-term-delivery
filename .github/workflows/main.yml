@@ -1,0 +1,85 @@
+name: Build and Deploy Fixed-term delivery Site
+
+on:
+  # 1. スケジュール実行: 毎日AM3:00 (JST) に自動実行
+  schedule:
+    - cron: '0 18 * * *' # UTCでの18時はJSTでの午前3時
+  
+  # 2. 手動実行: GitHubのActionsタブから手動で実行可能にする
+  workflow_dispatch:
+  
+  # 3. Push実行: mainブランチにpushされた時も実行する
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # リポジトリへの書き込み権限
+      pages: write    # GitHub Pagesへのデプロイ権限
+      id-token: write # GitHub Pagesへのデプロイ認証用
+
+    steps:
+      # ステップ1: リポジトリのコードをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ステップ2: PHP環境のセットアップとComposerのキャッシュ設定
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, intl # 必要なPHP拡張機能
+          tools: composer:v2
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      # ステップ3: 依存ライブラリのインストール
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-progress
+
+      # ステップ4: 画像の自動最適化 (WebP変換)
+      - name: Optimize and Convert Images to WebP
+        uses: img-actions/autocompress@v1.9.0
+        with:
+          webp-quality: 80
+          input-path: "images/**/*.@(jpg|jpeg|png)"
+
+      # ステップ5: サイト生成スクリプトの実行
+      - name: Run Site Generator Script
+        env:
+          # GitHub SecretsからPA-APIの認証情報を環境変数として渡す
+          PAAPI_ACCESS_KEY: ${{ secrets.PAAPI_ACCESS_KEY }}
+          PAAPI_SECRET_KEY: ${{ secrets.PAAPI_SECRET_KEY }}
+          PAAPI_ASSOCIATE_TAG: ${{ secrets.PAAPI_ASSOCIATE_TAG }}
+        run: php generate.php
+
+      # ステップ6: CSSの自動圧縮 (Minify)
+      - name: Minify CSS
+        uses: nico-gonzalez/action-minify@v1
+        with:
+          files: './public/**/*.css'
+
+      # ステップ7: GitHub Pages用の成果物を準備
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./public
+
+      # ステップ8: GitHub Pagesへデプロイ
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v3
