@@ -1,0 +1,45 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+    <article>
+        <header>
+            <h1>{{ scenario.meta.title }}</h1>
+            <p class="description">{{ scenario.meta.description }}</p>
+            <div class="grand-total-savings">
+                このモデルで、あなたの年間節約額は…
+                <span>{{ format_price(simulation.yearly_savings) }}</span>
+            </div>
+        </header>
+
+        <section id="simulation-result">
+            <h2>シミュレーション詳細</h2>
+            <ul class="product-card-list">
+                {% for p in simulation.products %}
+                <li class="product-card">
+                    <div class="product-image">
+                        {{ picture_tag(p, {'type': 'scenario', 'category': scenario.meta.tags|first })|raw }}
+                    </div>
+                    <div class="product-info">
+                        <h3>{{ p.title }}</h3>
+                        <div class="price-comparison">
+                            <span class="price-label">通常価格:</span>
+                            <span class="price-value original">{{ format_price(p.price) }}</span>
+                            <span class="price-label">割引後:</span>
+                            <span class="price-value discounted">{{ format_price(p.discounted_price) }}</span>
+                        </div>
+                        <a href="{{ p.url }}" class="cta-button" target="_blank" rel="noopener sponsored">Amazonで見る</a>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section id="commentary">
+            <h2>このモデルケースのポイント解説</h2>
+            {{ scenario.content|raw }}
+        </section>
+
+        <!-- ポテンシャル解放ブースターや共通攻略法は、ここに同様の形で追加可能 -->
+
+    </article>
+{% endblock %}

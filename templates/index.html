@@ -1,0 +1,24 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+    <section class="hero-section">
+        <h1>賢い人の、新しい節約習慣。</h1>
+        <p>「定期おトク便」の本当の価値を、計算済みのモデルケースでご確認ください。</p>
+    </section>
+
+    <section class="scenario-list-section">
+        <h2>節約額シミュレーション モデルケース一覧</h2>
+        <div class="scenario-list">
+            {% for s in scenarios %}
+            <a href="{{ s.url }}" class="scenario-card">
+                <h3>{{ s.title }}</h3>
+                <p>{{ s.description }}</p>
+                <div class="card-footer">
+                    <span>年間節約額</span>
+                    <span class="savings-amount">{{ s.yearly_savings_str|safe }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}

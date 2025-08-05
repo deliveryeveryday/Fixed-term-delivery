@@ -1,0 +1,20 @@
+{
+    "name": "fixed-term-delivery/site-generator",
+    "description": "A scenario-driven static site generator for Amazon affiliate marketing.",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "guzzlehttp/guzzle": "^7.5",
+        "twig/twig": "^3.4",
+        "symfony/yaml": "^6.1",
+        "erusev/parsedown": "^1.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

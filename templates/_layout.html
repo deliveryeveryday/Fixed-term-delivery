@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 1. SEO関連のメタタグ (動的に設定) -->
+    <title>{{ title }} - Fixed-term delivery</title>
+    <meta name="description" content="{{ description }}">
+
+    <!-- 2. ★★★ ファビコン設定 (最適解バージョン) ★★★ -->
+    <!-- 最新ブラウザ向けの高品質SVGアイコン -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <!-- iOS/iPadOSのホーム画面用アイコン -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <!-- 最大限の互換性を担保する伝統的なICO形式 -->
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <!-- 3. CSSの読み込み -->
+    <link rel="stylesheet" href="/style.css">
+
+    <!-- 4. Google Analytics (G-XXXXXXXXXX をご自身のIDに書き換えてください) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RH0NKD2R69"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RH0NKD2R69');
+    </script>
+    
+    <!-- 5. 構造化データ (動的に設定) -->
+    {% if json_ld %}
+    <script type="application/ld+json">
+        {{ json_ld|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE'))|raw }}
+    </script>
+    {% endif %}
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <a href="/" class="logo-link">
+                <!-- ロゴ画像はSVGを推奨 -->
+                <img src="/logo.svg" alt="Fixed-term delivery ロゴ" class="logo">
+            </a>
+        </div>
+    </header>
+
+    <main class="container">
+        {{ content|safe }}
+    </main>
+    
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; {{ "now"|date("Y") }} Fixed-term delivery. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
