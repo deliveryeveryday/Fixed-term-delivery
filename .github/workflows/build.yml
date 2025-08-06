@@ -1,4 +1,4 @@
-name: Build and Deploy Fixed-term delivery Site
+name: Build Website
 
 on:
   schedule:
@@ -9,19 +9,12 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-
     steps:
-      # ステップ1: リポジトリのコードをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ステップ2: PHP環境のセットアップとComposerのキャッシュ設定
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -36,14 +29,10 @@ jobs:
         with:
           path: vendor
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
 
-      # ステップ3: 依存ライブラリのインストール
       - name: Install Dependencies
         run: composer install --prefer-dist --no-progress
 
-      # ステップ4: サイト生成スクリプトの実行
       - name: Run Site Generator Script
         env:
           PAAPI_ACCESS_KEY: ${{ secrets.PAAPI_ACCESS_KEY }}
@@ -51,16 +40,9 @@ jobs:
           PAAPI_ASSOCIATE_TAG: ${{ secrets.PAAPI_ASSOCIATE_TAG }}
         run: php generate.php
 
-      # ステップ5: GitHub Pages用の成果物を準備
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
+      # ★ 成果物を'github-pages'という名前でアップロードする
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3 # ★★★ ここをv2からv3に更新しました ★★★
+        uses: actions/upload-artifact@v4 
         with:
+          name: github-pages
           path: ./public
-
-      # ステップ6: GitHub Pagesへデプロイ
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v3
