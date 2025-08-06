@@ -40,9 +40,21 @@ jobs:
           PAAPI_ASSOCIATE_TAG: ${{ secrets.PAAPI_ASSOCIATE_TAG }}
         run: php generate.php
 
-      # ★ 成果物を'github-pages'という名前でアップロードする
+      # ★★★ ここからデバッグ用ステップ ★★★
+      - name: Check PHP script output
+        run: |
+          echo "--- PHP script execution finished ---"
+          echo "Checking if public directory exists..."
+          if [ -d "public" ]; then echo "OK: 'public' directory exists."; else echo "ERROR: 'public' directory does NOT exist."; fi
+
+      - name: List files in public directory
+        run: |
+          echo "--- Listing files in the public directory ---"
+          ls -la public
+      # ★★★ デバッグ用ステップここまで ★★★
+
       - name: Upload artifact
-        uses: actions/upload-artifact@v4 
+        uses: actions/upload-artifact@v4
         with:
           name: github-pages
           path: ./public
