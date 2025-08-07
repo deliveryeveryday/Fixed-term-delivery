@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3 # ★★★ バージョンをv3に指定 ★★★
         with:
           name: github-pages
           path: ./public
@@ -32,4 +32,4 @@ jobs:
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v4 # ★★★ バージョンをv4に指定 ★★★
