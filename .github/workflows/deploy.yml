@@ -12,14 +12,15 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4 # ★★★ 公式が推奨する最新版 v4 ★★★
+        uses: actions/download-artifact@v4
         with:
           name: github-pages
           path: ./public
       - name: Setup Pages
         uses: actions/configure-pages@v4
+      # ★★★ 現実に存在する、最新安定板のv3を使用 ★★★
       - name: Upload artifact to Pages
-        uses: actions/upload-pages-artifact@v4 # ★★★ 公式が推奨する最新版 v4 ★★★
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
       - name: Deploy to GitHub Pages
