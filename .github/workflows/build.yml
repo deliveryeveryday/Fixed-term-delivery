@@ -1,34 +1,47 @@
 name: Build Website
+
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches:
+      - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
-        with: { php-version: '8.1', extensions: 'mbstring, intl, curl, json', tools: 'composer:v2' }
-        env: { COMPOSER_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
+        with:
+          php-version: '8.1'
+          extensions: mbstring, intl, curl, json
+          tools: composer:v2
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Cache Composer dependencies
-        uses: actions/cache@v4 # ★★★ v4に更新
+        uses: actions/cache@v3
         with:
           path: vendor
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+
       - name: Install Dependencies
         run: composer install --prefer-dist --no-progress
+
       - name: Run Site Generator Script
         env:
           PAAPI_ACCESS_KEY: ${{ secrets.PAAPI_ACCESS_KEY }}
           PAAPI_SECRET_KEY: ${{ secrets.PAAPI_SECRET_KEY }}
           PAAPI_ASSOCIATE_TAG: ${{ secrets.PAAPI_ASSOCIATE_TAG }}
         run: php generate.php
+
+      # ★★★ upload-artifact のバージョンを v3 に指定 ★★★
       - name: Upload artifact
-        uses: actions/upload-artifact@v4 # ★★★ 公式が推奨する最新版 v4 ★★★
+        uses: actions/upload-artifact@v3
         with:
           name: github-pages
           path: ./public
-          retention-days: 1
+          retention-days: 1 # 成果物を1日だけ保持する（推奨設定）
