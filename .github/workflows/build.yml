@@ -1,7 +1,7 @@
 name: Build Website
 
 on:
-  workflow_dispatch: # 手動実行を可能にする
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -17,7 +17,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          extensions: mbstring, intl, curl, json # 必要な拡張機能を明記
+          extensions: mbstring, intl, curl, json
           tools: composer:v2
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -31,25 +31,26 @@ jobs:
       - name: Install Dependencies
         run: composer install --prefer-dist --no-progress
 
+      # ★★★ ここからが変更点 ★★★
       - name: Run Site Generator Script
+        id: generator # このステップにIDを付ける
+        continue-on-error: true # このステップが失敗しても、ワークフローを止めない
         env:
           PAAPI_ACCESS_KEY: ${{ secrets.PAAPI_ACCESS_KEY }}
           PAAPI_SECRET_KEY: ${{ secrets.PAAPI_SECRET_KEY }}
           PAAPI_ASSOCIATE_TAG: ${{ secrets.PAAPI_ASSOCIATE_TAG }}
         run: php generate.php
 
-      # ★★★ ここからデバッグ用ステップ ★★★
-      - name: Check PHP script output
+      - name: Check build status and copy placeholder if failed
+        # 上の 'generator' ステップが失敗した場合にのみ、このステップを実行する
+        if: steps.generator.outcome == 'failure'
         run: |
-          echo "--- PHP script execution finished ---"
-          echo "Checking if public directory exists..."
-          if [ -d "public" ]; then echo "OK: 'public' directory exists."; else echo "ERROR: 'public' directory does NOT exist."; fi
-
-      - name: List files in public directory
-        run: |
-          echo "--- Listing files in the public directory ---"
-          ls -la public
-      # ★★★ デバッグ用ステップここまで ★★★
+          echo "Site generation failed. Copying placeholder page."
+          # publicフォルダがなければ作成
+          mkdir -p public
+          # placeholder/index.html を public/index.html にコピーする
+          cp placeholder/index.html public/index.html
+      # ★★★ 変更ここまで ★★★
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
