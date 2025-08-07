@@ -1,35 +1,27 @@
 name: Deploy to GitHub Pages
-
 on:
   workflow_run:
     workflows: ["Build Website"]
-    types:
-      - completed
-
+    types: [ completed ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
       pages: write
       id-token: write
-      
     if: github.event.workflow_run.conclusion == 'success'
-
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v3 # ★★★ バージョンをv3に指定 ★★★
+        uses: actions/download-artifact@v4 # ★★★ 公式が推奨する最新版 v4 ★★★
         with:
           name: github-pages
           path: ./public
-
       - name: Setup Pages
         uses: actions/configure-pages@v4
-
       - name: Upload artifact to Pages
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4 # ★★★ 公式が推奨する最新版 v4 ★★★
         with:
           path: ./public
-
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4 # ★★★ バージョンをv4に指定 ★★★
+        uses: actions/deploy-pages@v4
