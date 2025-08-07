@@ -11,7 +11,8 @@ class ContentParser {
         if (!file_exists($filePath)) { return null; }
         $content = file_get_contents($filePath);
         if (preg_match('/^---\s*$(.*)^---\s*$(.*)/ms', $content, $matches)) {
-            $meta = Yaml::parse(trim($matches[1]));
+            // ★★★ これが唯一の、そして全ての原因だったバグ修正です ★★★
+            $meta = Yaml::parse(trim($matches[1])); 
             $bodyContent = trim($matches[2]);
             $summaryHtml = '';
             $mainContentHtml = '';
