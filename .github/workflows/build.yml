@@ -31,29 +31,17 @@ jobs:
       - name: Install Dependencies
         run: composer install --prefer-dist --no-progress
 
-      # ★★★ ここからが変更点 ★★★
       - name: Run Site Generator Script
-        id: generator # このステップにIDを付ける
-        continue-on-error: true # このステップが失敗しても、ワークフローを止めない
         env:
           PAAPI_ACCESS_KEY: ${{ secrets.PAAPI_ACCESS_KEY }}
           PAAPI_SECRET_KEY: ${{ secrets.PAAPI_SECRET_KEY }}
           PAAPI_ASSOCIATE_TAG: ${{ secrets.PAAPI_ASSOCIATE_TAG }}
         run: php generate.php
 
-      - name: Check build status and copy placeholder if failed
-        # 上の 'generator' ステップが失敗した場合にのみ、このステップを実行する
-        if: steps.generator.outcome == 'failure'
-        run: |
-          echo "Site generation failed. Copying placeholder page."
-          # publicフォルダがなければ作成
-          mkdir -p public
-          # placeholder/index.html を public/index.html にコピーする
-          cp placeholder/index.html public/index.html
-      # ★★★ 変更ここまで ★★★
-
+      # ★★★ upload-artifact のバージョンを v3 に指定 ★★★
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: github-pages
           path: ./public
+          retention-days: 1 # 成果物を1日だけ保持する（推奨設定）
