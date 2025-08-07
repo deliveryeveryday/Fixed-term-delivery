@@ -1,34 +1,18 @@
 <?php
-
-namespace App;
-
-use Symfony\Component\Yaml\Yaml;
-use Parsedown;
-
+// ... (namespace, use は変更なし) ...
 class ContentParser
 {
-    private Parsedown $parsedown;
-
-    public function __construct()
-    {
-        $this->parsedown = new Parsedown();
-    }
-
+    // ... (__construct は変更なし) ...
     public function parse(string $filePath): ?array
     {
-        if (!file_exists($filePath)) {
-            return null;
-        }
-
+        if (!file_exists($filePath)) { return null; }
         $content = file_get_contents($filePath);
         
         if (preg_match('/^---\s*$(.*)^---\s*$(.*)/ms', $content, $matches)) {
-            // ★★★ ここがバグ修正箇所 ★★★
-            // 配列全体ではなく、キャプチャしたYAML部分($matches[1])を渡す
-            $meta = Yaml::parse(trim($matches[1])); 
-            // 本文部分($matches[2])を渡す
+            $meta = Yaml::parse(trim($matches[1]));
             $bodyContent = trim($matches[2]);
 
+            // ★★★ 新しい区切り文字に変更 ★★★
             $summaryHtml = '';
             $mainContentHtml = '';
             $separator = '<!-- summary -->';
@@ -47,21 +31,7 @@ class ContentParser
                 'main_content_html' => $mainContentHtml
             ];
         }
-
         return null;
     }
-
-    public function parseAllScenarios(string $directoryPath): array
-    {
-        $scenarios = [];
-        $files = glob($directoryPath . '/*.md');
-
-        foreach ($files as $file) {
-            $parsedData = $this->parse($file);
-            if ($parsedData) {
-                $scenarios[] = $parsedData;
-            }
-        }
-        return $scenarios;
-    }
+    // ... (parseAllScenarios は変更なし) ...
 }
