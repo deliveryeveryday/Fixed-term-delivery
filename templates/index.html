@@ -1,18 +1,26 @@
 {% extends "_layout.html" %}
 
 {% block content %}
+<main class="container">
     <section class="hero-section">
-        <h1>賢い人の、新しい節約習慣。</h1>
-        <p>「定期おトク便」の本当の価値を、計算済みのモデルケースでご確認ください。</p>
+        <h1>{{ pillar_content.meta.title }}</h1>
+        <div class="pillar-body">
+            {{ pillar_content.main_content_html|raw }}
+        </div>
     </section>
 
     <section class="scenario-list-section">
-        <h2>節約額シミュレーション モデルケース一覧</h2>
+        <h2>ライフスタイル別 節約額シミュレーション</h2>
+        <p>あなたの生活に近いモデルケースをクリックして、具体的な節約額をご確認ください。</p>
         <div class="scenario-list">
             {% for s in scenarios %}
             <a href="{{ s.url }}" class="scenario-card">
-                <h3>{{ s.title }}</h3>
-                <p>{{ s.description }}</p>
+                <div class="card-content">
+                    <h3>{{ s.title }}</h3>
+                    <div class="scenario-summary">
+                        {{ s.summary_html|raw }}
+                    </div>
+                </div>
                 <div class="card-footer">
                     <span>年間節約額</span>
                     <span class="savings-amount">{{ s.yearly_savings_str|safe }}</span>
@@ -21,4 +29,5 @@
             {% endfor %}
         </div>
     </section>
+</main>
 {% endblock %}
