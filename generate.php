@@ -11,20 +11,29 @@ use App\PaApiHandler;
 use App\SimulationEngine;
 use App\HtmlRenderer;
 
-// --- 環境変数から認証情報を取得 ---
-$accessKey = $_SERVER['PAAPI_ACCESS_KEY'] ?? '';
-$secretKey = $_SERVER['PAAPI_SECRET_KEY'] ?? '';
-$partnerTag = $_SERVER['PAAPI_ASSOCIATE_TAG'] ?? '';
+// --- ★★★ 環境変数から認証情報を取得 (より堅牢な方法に変更) ★★★ ---
+$accessKey = getenv('PAAPI_ACCESS_KEY');
+$secretKey = getenv('PAAPI_SECRET_KEY');
+$partnerTag = getenv('PAAPI_ASSOCIATE_TAG');
+
+// ログ出力によるデバッグ
+echo "PAAPI_ACCESS_KEY: " . ($accessKey ? 'Loaded' : 'NOT LOADED') . "\n";
+echo "PAAPI_SECRET_KEY: " . ($secretKey ? 'Loaded' : 'NOT LOADED') . "\n";
+echo "PAAPI_ASSOCIATE_TAG: " . ($partnerTag ? 'Loaded' : 'NOT LOADED') . "\n";
 
 if (empty($accessKey) || empty($secretKey) || empty($partnerTag)) {
-    die("Error: PA-API credentials are not set. Please check your environment variables or GitHub Secrets.\n");
+    // スクリプトは停止させず、警告を出すだけにする
+    echo "Warning: PA-API credentials are not fully set. Site will be generated without product data.\n";
 }
+// --- ★★★ 変更ここまで ★★★ ---
+
 
 /**
  * 商品リストからItemListスキーマのJSON-LDを生成するヘルパー関数
  */
 function buildJsonLdItemList(array $products): array
 {
+    // ... (この関数の中身は変更なし) ...
     $itemListElement = [];
     $position = 1;
     foreach ($products as $product) {
@@ -46,8 +55,7 @@ function buildJsonLdItemList(array $products): array
     return ['@context' => 'https://schema.org/', '@type' => 'ItemList', 'itemListElement' => $itemListElement];
 }
 
-
-// 2. 各コンポーネントのインスタンス化
+// ... (インスタンス化の部分は変更なし) ...
 $contentParser = new ContentParser();
 $paApiHandler = new PaApiHandler($accessKey, $secretKey, $partnerTag);
 $simulationEngine = new SimulationEngine();
@@ -56,12 +64,12 @@ $htmlRenderer = new HtmlRenderer(__DIR__ . '/templates');
 echo "Site generation started...\n";
 
 try {
-    // 3. 共通パーツ（著者プロフィール、ピラーコンテンツ）を読み込む
+    // ... (以降の処理は、APIキーが空でもエラーにならないように調整) ...
+    
     $authorProfile = $contentParser->parse(__DIR__ . '/content/partials/author-profile.md');
     $pillarContent = $contentParser->parse(__DIR__ . '/content/partials/pillar-content.md');
-
-    // 4. 全シナリオを解析し、slugをキーにしたマップを作成
     $scenarios = $contentParser->parseAllScenarios(__DIR__ . '/content/scenarios');
+    
     $scenariosBySlug = [];
     foreach ($scenarios as $scenario) {
         if (isset($scenario['meta']['slug'])) {
@@ -69,7 +77,6 @@ try {
         }
     }
 
-    // 5. 必要なASINリストを作成
     $allAsins = [];
     foreach ($scenarios as $scenario) {
         if (isset($scenario['meta']['products']) && is_array($scenario['meta']['products'])) {
@@ -81,23 +88,26 @@ try {
     $uniqueAsins = array_unique($allAsins);
     echo "Found " . count($scenarios) . " scenarios with " . count($uniqueAsins) . " unique products.\n";
 
-    // 6. PA-APIから全商品情報を一括取得
-    echo "Fetching product data from PA-API...\n";
-    $paApiData = $paApiHandler->getItems($uniqueAsins);
-    if ($paApiData === null) {
-        throw new Exception("Failed to fetch data from PA-API.");
+    // APIキーが設定されている場合のみ、PA-APIからデータを取得
+    $paApiData = [];
+    if (!empty($accessKey) && !empty($secretKey) && !empty($partnerTag)) {
+        echo "Fetching product data from PA-API...\n";
+        $paApiData = $paApiHandler->getItems($uniqueAsins);
+        if ($paApiData === null) {
+            echo "Warning: Failed to fetch data from PA-API, but continuing generation.\n";
+            $paApiData = [];
+        } else {
+            echo "Successfully fetched data for " . count($paApiData) . " products.\n";
+        }
     }
-    echo "Successfully fetched data for " . count($paApiData) . " products.\n";
 
-    // 7. 各シナリオのシミュレーションを実行し、HTMLを生成
+    // ... (以降のHTML生成処理は変更なし) ...
     $renderedScenariosForIndex = [];
     foreach ($scenarios as $scenario) {
         echo "Processing scenario: " . ($scenario['meta']['title'] ?? 'No Title') . "\n";
         
         $simulationResult = $simulationEngine->simulate($scenario['meta']['products'], $paApiData);
         $jsonLd = buildJsonLdItemList($simulationResult['products']);
-
-        // 関連シナリオのデータを構築
         $relatedScenariosData = [];
         if (!empty($scenario['meta']['related_scenarios'])) {
             foreach ($scenario['meta']['related_scenarios'] as $relatedSlug) {
@@ -110,7 +120,6 @@ try {
             }
         }
 
-        // テンプレートに渡すデータを準備
         $pageData = [
             'title' => $scenario['meta']['title'] . ' | Fixed-term delivery',
             'description' => $scenario['meta']['description'],
@@ -121,11 +130,9 @@ try {
             'related_scenarios' => $relatedScenariosData
         ];
 
-        // 個別シナリオページを生成
         $outputFile = __DIR__ . '/public/' . $scenario['meta']['slug'] . '.html';
         $htmlRenderer->renderAndSave('scenario.html', $pageData, $outputFile);
 
-        // トップページ用にデータを格納
         $renderedScenariosForIndex[] = [
             'title' => $scenario['meta']['title'],
             'description' => $scenario['meta']['description'],
@@ -135,8 +142,6 @@ try {
         ];
     }
 
-    // 8. トップページ（ピラーページ）を生成
-    echo "Generating pillar page (index.html)...\n";
     $indexData = [
         'title' => '【年間2.4万円節約】Amazon定期おトク便 完全攻略ガイド｜Fixed-term delivery',
         'description' => 'Amazon定期おトク便の賢い使い方を徹底解説。おまとめ割引で最大15%OFFにする方法や、子育て・健康・ペットなどライフスタイル別の節約シミュレーションで、あなたの家計をサポートします。',
