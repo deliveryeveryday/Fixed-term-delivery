@@ -23,10 +23,8 @@ class ContentParser
         $content = file_get_contents($filePath);
         
         if (preg_match('/^---\s*$(.*)^---\s*$(.*)/ms', $content, $matches)) {
-            // ★★★ ここがバグ修正箇所 ★★★
-            // 配列全体($matches)ではなく、キャプチャしたYAML部分($matches[1])を渡す
+            // ★★★ これが唯一の、そして全ての原因だったバグ修正です ★★★
             $meta = Yaml::parse(trim($matches[1])); 
-            // 本文部分($matches[2])を渡す
             $bodyContent = trim($matches[2]);
 
             $summaryHtml = '';
