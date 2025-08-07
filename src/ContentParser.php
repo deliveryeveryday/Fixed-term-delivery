@@ -23,8 +23,11 @@ class ContentParser
         $content = file_get_contents($filePath);
         
         if (preg_match('/^---\s*$(.*)^---\s*$(.*)/ms', $content, $matches)) {
-            $meta = Yaml::parse($matches);
-            $bodyContent = trim($matches);
+            // ★★★ ここがバグ修正箇所 ★★★
+            // 配列全体ではなく、キャプチャしたYAML部分($matches[1])を渡す
+            $meta = Yaml::parse(trim($matches[1])); 
+            // 本文部分($matches[2])を渡す
+            $bodyContent = trim($matches[2]);
 
             $summaryHtml = '';
             $mainContentHtml = '';
@@ -32,8 +35,8 @@ class ContentParser
             $parts = explode($separator, $bodyContent, 2);
 
             if (count($parts) === 2) {
-                $summaryHtml = $this->parsedown->text(trim($parts));
-                $mainContentHtml = $this->parsedown->text(trim($parts));
+                $summaryHtml = $this->parsedown->text(trim($parts[0]));
+                $mainContentHtml = $this->parsedown->text(trim($parts[1]));
             } else {
                 $mainContentHtml = $this->parsedown->text($bodyContent);
             }
