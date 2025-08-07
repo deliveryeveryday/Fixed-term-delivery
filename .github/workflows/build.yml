@@ -1,9 +1,7 @@
 name: Build Website
 
 on:
-  schedule:
-    - cron: '0 18 * * *'
-  workflow_dispatch:
+  workflow_dispatch: # 手動実行を可能にする
   push:
     branches:
       - main
@@ -19,7 +17,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          extensions: mbstring, intl
+          extensions: mbstring, intl, curl, json # 必要な拡張機能を明記
           tools: composer:v2
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
