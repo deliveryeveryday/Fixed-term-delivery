@@ -50,10 +50,7 @@ jobs:
 
       # ステップ4: 画像の自動最適化 (WebP変換)
       - name: Optimize and Convert Images to WebP
-        uses: img-actions/autocompress@v1.9.0
-        with:
-          webp-quality: 80
-          input-path: "images/**/*.@(jpg|jpeg|png)"
+        uses: img-actions/autocompress@v1.9.1 # ★バージョン更新済み
 
       # ステップ5: サイト生成スクリプトの実行
       - name: Run Site Generator Script
@@ -66,7 +63,7 @@ jobs:
 
       # ステップ6: CSSの自動圧縮 (Minify)
       - name: Minify CSS
-        uses: nico-gonzalez/action-minify@v1
+        uses: nico-gonzalez/action-minify@v1.3.1 # ★バージョン更新済み
         with:
           files: './public/**/*.css'
 
