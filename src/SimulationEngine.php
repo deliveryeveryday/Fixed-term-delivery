@@ -4,14 +4,20 @@ namespace App;
 
 class SimulationEngine
 {
-    private const DISCOUNT_NORMAL = 0.10;
-    private const DISCOUNT_BULK = 0.15;
+    private float $discountNormal;
+    private float $discountBulk;
+
+    public function __construct(array $config)
+    {
+        $this->discountNormal = $config['discount_normal'];
+        $this->discountBulk = $config['discount_bulk'];
+    }
 
     public function simulate(array $scenarioProducts, array $paApiData): array
     {
         $itemCount = count($scenarioProducts);
         $isBulkDiscount = $itemCount >= 3;
-        $discountRate = $isBulkDiscount ? self::DISCOUNT_BULK : self::DISCOUNT_NORMAL;
+        $discountRate = $isBulkDiscount ? $this->discountBulk : $this->discountNormal;
 
         $simulatedProducts = [];
         $totalNormalPrice = 0;
@@ -20,10 +26,10 @@ class SimulationEngine
         foreach ($scenarioProducts as $p) {
             $asin = $p['asin'];
             $price = $paApiData[$asin]['Offers']['Listings'][0]['Price']['Amount'] ?? null;
-            
+
             $title = $paApiData[$asin]['ItemInfo']['Title']['DisplayValue'] ?? ('商品 ' . $asin);
             $discountedPrice = ($price !== null) ? floor($price * (1 - $discountRate)) : 0;
-
+            
             $simulatedProducts[] = [
                 'asin' => $asin,
                 'title' => $title,
