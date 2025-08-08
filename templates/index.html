@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% extends "_layout.html" %}
 
 {% block content %}
@@ -35,4 +36,43 @@
         </div>
     </section>
 </main>
+=======
+{% extends "_layout.html" %}
+
+{% block content %}
+<main class="container">
+    <section class="hero-section">
+        {% if pillar_content.meta.title is defined %}
+            <h1>{{ pillar_content.meta.title }}</h1>
+        {% endif %}
+        {% if pillar_content.main_content_html is defined %}
+            <div class="pillar-body">
+                {{ pillar_content.main_content_html|raw }}
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="scenario-list-section">
+        <h2>ライフスタイル別 節約額シミュレーション</h2>
+        <p>あなたの生活に近いモデルケースをクリックして、具体的な節約額をご確認ください。</p>
+        <div class="scenario-list">
+            {% for s in scenarios %}
+            {# 各シナリオへのリンク (相対パスに修正) #}
+            <a href="{{ s.url }}" class="scenario-card">
+                <div class="card-content">
+                    <h3>{{ s.title }}</h3>
+                    <div class="scenario-summary">
+                        {{ s.summary_html|raw }}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span>年間節約額</span>
+                    <span class="savings-amount">{{ s.yearly_savings_str|raw }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+>>>>>>> e2f911496a3137af6bf699c4e596ffe0f3a3fc48
 {% endblock %}
