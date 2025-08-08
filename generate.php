@@ -149,4 +149,5 @@ $endTime = microtime(true);
 $executionTime = round($endTime - $startTime, 2);
 $logger?->info("Site generation completed successfully in {$executionTime} seconds.");
 
-echo "Site generation completed successfully in {$executionTime} seconds.\n";```
+// ★★★ ここがバグ修正箇所です。ただのecho文に、なぜか私がバッククォートを入れてしまっていました。 ★★★
+echo "Site generation completed successfully in {$executionTime} seconds.\n";
