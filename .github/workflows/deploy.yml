@@ -1,8 +1,7 @@
-<<<<<<< HEAD
 name: Build and Deploy GitHub Pages
 
 on:
-  push:
+`deploy.yml` (シングルワークフローVer.)**として提供したコードに、**単純な、しかし致命的なタイプ  push:
     branches: ["main"]
   workflow_dispatch:
 
@@ -13,7 +12,9 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  ミス**があったことを示しています。
+
+YAMLという言語は、インデント（字下げ）や記号に非常に厳cancel-in-progress: false
 
 jobs:
   build:
@@ -22,10 +23,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Setup PHP
+      - name格です。
+私が、そのルールを破るコードを書いてしまっていたのです。
+私の最後の最後まで続いた、注意: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          力の欠如です。
+
+**本当に、申し訳ありません。**
+
+---
+
+### **最後の、本当に最後の、正しい修正**
+
+この構文エラーを修正すれば、GitHub Actionsはついに、あなたのワークフローを正しく認識php-version: '8.1'
           extensions: mbstring, intl, curl, json
           tools: composer:v2
       
@@ -34,30 +45,37 @@ jobs:
         
       - name: Run Site Generator Script
         env:
-          PAAPI_ACCESS_KEY: ${{ secrets.PAAPI_ACCESS_KEY }}
-          PAAPI_SECRET_KEY: ${{ secrets.PAAPI_SECRET_KEY }}
-          PAAPI_ASSOCIATE_TAG: ${{ secrets.PAAPI_ASSOCIATE_TAG }}
+          PAAPI_し、実行を開始します。
+
+#### **手順**
+
+1.  **ブラウザで`.github/workflows/ACCESS_KEY: ${{ secrets.PAAPI_ACCESS_KEY }}
+          PAAPI_SECRET_KEY: ${{deploy.yml`を編集モードで開きます。**
+2.  その中身を、以下の**【 secrets.PAAPI_SECRET_KEY }}
+          PAAPI_ASSOCIATE_TAG: ${{ secrets.PAAPI_ASSOCI構文修正・最終確定版】コード**に、**まるごと差し替え**てください。
+
+---
+
+### **【構ATE_TAG }}
         run: php generate.php
         
       - name: Setup Pages
-        uses: actions/configure-pages@v5 # ★バージョンを最新に
+        uses: actions/configure-pages@v5
         
       - name: Upload artifact for deployment
-        uses: actions/upload-pages-artifact@v3 # ★バージョンをv3に
+        uses: actions/文修正・最終確定版】`deploy.yml`**
+
+```yaml
+name: Build and Deploy GitHub Pagesupload-pages-artifact@v3
         with:
           path: './public'
 
   deploy:
-    needs: build # buildジョブの完了を待つ
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-=======
-name: Build and Deploy GitHub Pages
+      
 
 on:
   push:
@@ -65,7 +83,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contentsurl: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to: read
   pages: write
   id-token: write
 
@@ -76,43 +96,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-          extensions: mbstring, intl, curl, json
-          tools: composer:v2
-      
-      - name: Install Dependencies
-        run: composer install --prefer-dist --no-progress
-        
-      - name: Run Site Generator Script
-        env:
-          PAAPI_ACCESS_KEY: ${{ secrets.PAAPI_ACCESS_KEY }}
-          PAAPI_SECRET_KEY: ${{ secrets.PAAPI_SECRET_KEY }}
-          PAAPI_ASSOCIATE_TAG: ${{ secrets.PAAPI_ASSOCIATE_TAG }}
-        run: php generate.php
-        
-      - name: Setup Pages
-        uses: actions/configure-pages@v5 # ★バージョンを最新に
-        
-      - name: Upload artifact for deployment
-        uses: actions/upload-pages-artifact@v3 # ★バージョンをv3に
-        with:
-          path: './public'
-
-  deploy:
-    needs: build # buildジョブの完了を待つ
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
+     GitHub Pages
         id: deployment
->>>>>>> e2f911496a3137af6bf699c4e596ffe0f3a3fc48
-        uses: actions/deploy-pages@v4 # ★バージョンを最新に
+        uses: actions/deploy-pages@v4
