@@ -5,9 +5,9 @@ use App\PaApiHandler;
 use App\SimulationEngine;
 use App\HtmlRenderer;
 
-$accessKey = getenv('PAAPI_ACCESS_KEY');
-$secretKey = getenv('PAAPI_SECRET_KEY');
-$partnerTag = getenv('PAAPI_ASSOCIATE_TAG');
+$accessKey = getenv('PAAPI_ACCESS_KEY') ?? '';
+$secretKey = getenv('PAAPI_SECRET_KEY') ?? '';
+$partnerTag = getenv('PAAPI_ASSOCIATE_TAG') ?? '';
 
 if (empty($accessKey) || empty($secretKey) || empty($partnerTag)) {
     echo "Warning: PA-API credentials are not set. Site will be generated without product data.\n";
@@ -41,12 +41,12 @@ try {
     foreach ($scenarios as $scenario) {
         $simulationResult = $simulationEngine->simulate($scenario['meta']['products'], $paApiData);
         $pageData = [
-            'title' => $scenario['meta']['title'] . ' | Fixed-term delivery',
-            'description' => $scenario['meta']['description'],
+            'title' => ($scenario['meta']['title'] ?? 'シナリオ') . ' | Fixed-term delivery',
+            'description' => $scenario['meta']['description'] ?? '',
             'scenario' => $scenario,
             'simulation' => $simulationResult
         ];
-        $outputFile = __DIR__ . '/public/' . $scenario['meta']['slug'] . '.html';
+        $outputFile = __DIR__ . '/public/' . ($scenario['meta']['slug'] ?? uniqid()) . '.html';
         $htmlRenderer->renderAndSave('scenario.html', $pageData, $outputFile);
         $renderedScenariosForIndex[] = [
             'title' => $scenario['meta']['title'],
