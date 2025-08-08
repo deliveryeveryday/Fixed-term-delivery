@@ -3,7 +3,6 @@
 {% block content %}
 <main class="container">
     <section class="hero-section">
-        {# pillar_contentが未定義でもエラーにならないようにチェック #}
         {% if pillar_content.meta.title is defined %}
             <h1>{{ pillar_content.meta.title }}</h1>
         {% endif %}
@@ -19,6 +18,7 @@
         <p>あなたの生活に近いモデルケースをクリックして、具体的な節約額をご確認ください。</p>
         <div class="scenario-list">
             {% for s in scenarios %}
+            {# 各シナリオへのリンク (相対パスに修正) #}
             <a href="{{ s.url }}" class="scenario-card">
                 <div class="card-content">
                     <h3>{{ s.title }}</h3>
@@ -28,7 +28,6 @@
                 </div>
                 <div class="card-footer">
                     <span>年間節約額</span>
-                    {# ★★★ ここがバグ修正箇所！ |safe を |raw に修正 ★★★ #}
                     <span class="savings-amount">{{ s.yearly_savings_str|raw }}</span>
                 </div>
             </a>
