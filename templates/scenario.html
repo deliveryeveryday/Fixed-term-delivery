@@ -1,45 +1,45 @@
 {% extends "_layout.html" %}
 
 {% block content %}
-    <article>
+<main class="container">
+    <article class="scenario-article">
         <header>
             <h1>{{ scenario.meta.title }}</h1>
             <p class="description">{{ scenario.meta.description }}</p>
-            <div class="grand-total-savings">
-                このモデルで、あなたの年間節約額は…
-                <span>{{ format_price(simulation.yearly_savings) }}</span>
-            </div>
         </header>
 
-        <section id="simulation-result">
-            <h2>シミュレーション詳細</h2>
-            <ul class="product-card-list">
-                {% for p in simulation.products %}
-                <li class="product-card">
-                    <div class="product-image">
-                        {{ picture_tag(p, {'type': 'scenario', 'category': scenario.meta.tags|first })|raw }}
-                    </div>
-                    <div class="product-info">
-                        <h3>{{ p.title }}</h3>
-                        <div class="price-comparison">
-                            <span class="price-label">通常価格:</span>
-                            <span class="price-value original">{{ format_price(p.price) }}</span>
-                            <span class="price-label">割引後:</span>
-                            <span class="price-value discounted">{{ format_price(p.discounted_price) }}</span>
-                        </div>
-                        <a href="{{ p.url }}" class="cta-button" target="_blank" rel="noopener sponsored">Amazonで見る</a>
-                    </div>
-                </li>
+        <!-- Markdown本文（サマリー＋メインコンテンツ）をレンダリング -->
+        <div class="content-body">
+            {{ scenario.summary_html|raw }}
+            {{ scenario.main_content_html|raw }}
+        </div>
+
+        <!-- 関連シナリオへの内部リンク -->
+        {% if related_scenarios is not empty %}
+        <section class="related-scenarios-section">
+            <h2>あわせて読みたい関連記事</h2>
+            <ul class="related-list">
+                {% for related in related_scenarios %}
+                <li><a href="{{ related.url }}">{{ related.title }}</a></li>
                 {% endfor %}
             </ul>
         </section>
+        {% endif %}
 
-        <section id="commentary">
-            <h2>このモデルケースのポイント解説</h2>
-            {{ scenario.content|raw }}
+        <!-- ピラーページへの内部リンク -->
+        <section class="pillar-link-section">
+            <a href="/" class="back-to-pillar">
+                &laquo; Amazon定期おトク便 完全攻略ガイドに戻る
+            </a>
         </section>
 
-        <!-- ポテンシャル解放ブースターや共通攻略法は、ここに同様の形で追加可能 -->
+        <!-- 著者プロフィールをレンダリング -->
+        {% if author_profile %}
+        <section class="author-profile-section">
+            {{ author_profile.main_content_html|raw }}
+        </section>
+        {% endif %}
 
     </article>
+</main>
 {% endblock %}
