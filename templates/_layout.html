@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- SEO関連のメタタグ (動的に設定) -->
     <title>{{ title }}</title>
     <meta name="description" content="{{ description }}">
+    
+    <!-- ファビコン設定 (相対パスに修正) -->
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+    <link rel="shortcut icon" href="./favicon.ico">
 
-    <!-- ファビコン設定 (最適解バージョン) -->
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="shortcut icon" href="/favicon.ico">
+    <!-- CSSの読み込み (相対パスに修正) -->
+    <link rel="stylesheet" href="./style.css">
 
-    <!-- CSSの読み込み -->
-    <link rel="stylesheet" href="/style.css">
-
-    <!-- Google Analytics (G-XXXXXXXXXX をご自身のIDに書き換えてください) -->
+    <!-- Google Analytics (IDはご自身のものにしてください) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-RH0NKD2R69"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -35,8 +33,10 @@
 <body>
     <header class="site-header">
         <div class="container">
-            <a href="/" class="logo-link" title="トップページへ戻る">
-                <img src="/logo.svg" alt="Fixed-term delivery ロゴ" class="logo">
+            {# トップページへのリンク。相対パスなので "./" または単に "/" でも可 #}
+            <a href="./" class="logo-link" title="トップページへ戻る">
+                {# ロゴ画像 (相対パスに修正) #}
+                <img src="./logo.svg" alt="Fixed-term delivery ロゴ" class="logo">
             </a>
         </div>
     </header>

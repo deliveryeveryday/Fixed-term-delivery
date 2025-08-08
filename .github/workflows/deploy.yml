@@ -1,0 +1,58 @@
+name: Build and Deploy GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, intl, curl, json
+          tools: composer:v2
+      
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-progress
+        
+      - name: Run Site Generator Script
+        env:
+          PAAPI_ACCESS_KEY: ${{ secrets.PAAPI_ACCESS_KEY }}
+          PAAPI_SECRET_KEY: ${{ secrets.PAAPI_SECRET_KEY }}
+          PAAPI_ASSOCIATE_TAG: ${{ secrets.PAAPI_ASSOCIATE_TAG }}
+        run: php generate.php
+        
+      - name: Setup Pages
+        uses: actions/configure-pages@v5 # ★バージョンを最新に
+        
+      - name: Upload artifact for deployment
+        uses: actions/upload-pages-artifact@v3 # ★バージョンをv3に
+        with:
+          path: './public'
+
+  deploy:
+    needs: build # buildジョブの完了を待つ
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 # ★バージョンを最新に

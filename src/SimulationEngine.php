@@ -4,21 +4,20 @@ namespace App;
 
 class SimulationEngine
 {
-    // 割引率ルール。将来Amazonの仕様が変わったら、ここを書き換える。
-    private const DISCOUNT_NORMAL = 0.10; // 3点未満の場合の割引率
-    private const DISCOUNT_BULK = 0.15;   // 3点以上のおまとめ割引率
+    private float $discountNormal;
+    private float $discountBulk;
 
-    /**
-     * 1つのシナリオについて、完全なシミュレーション結果を計算する
-     * @param array $scenarioProducts シナリオで定義された商品リスト (ASINなど)
-     * @param array $paApiData PA-APIから取得した、ASINをキーとする商品データ
-     * @return array 計算されたシミュレーション結果
-     */
+    public function __construct(array $config)
+    {
+        $this->discountNormal = $config['discount_normal'];
+        $this->discountBulk = $config['discount_bulk'];
+    }
+
     public function simulate(array $scenarioProducts, array $paApiData): array
     {
         $itemCount = count($scenarioProducts);
         $isBulkDiscount = $itemCount >= 3;
-        $discountRate = $isBulkDiscount ? self::DISCOUNT_BULK : self::DISCOUNT_NORMAL;
+        $discountRate = $isBulkDiscount ? $this->discountBulk : $this->discountNormal;
 
         $simulatedProducts = [];
         $totalNormalPrice = 0;
@@ -26,33 +25,26 @@ class SimulationEngine
 
         foreach ($scenarioProducts as $p) {
             $asin = $p['asin'];
-            if (!isset($paApiData[$asin])) {
-                continue; // PA-APIから情報を取得できなかった商品はスキップ
-            }
+            $price = $paApiData[$asin]['Offers']['Listings'][0]['Price']['Amount'] ?? null;
 
-            $productData = $paApiData[$asin];
-            $price = $productData['Offers']['Listings'][0]['Price']['Amount'] ?? null;
-
-            if ($price === null) {
-                continue; // 価格情報がない商品はスキップ
-            }
-
-            $discountedPrice = floor($price * (1 - $discountRate));
-
+            $title = $paApiData[$asin]['ItemInfo']['Title']['DisplayValue'] ?? ('商品 ' . $asin);
+            $discountedPrice = ($price !== null) ? floor($price * (1 - $discountRate)) : 0;
+            
             $simulatedProducts[] = [
                 'asin' => $asin,
-                'title' => $productData['ItemInfo']['Title']['DisplayValue'] ?? 'タイトル不明',
-                'url' => $productData['DetailPageURL'] ?? '#',
-                'image_url' => $productData['Images']['Primary']['Large']['URL'] ?? '',
-                'image_width' => $productData['Images']['Primary']['Large']['Width'] ?? null,
-                'image_height' => $productData['Images']['Primary']['Large']['Height'] ?? null,
+                'title' => $title,
+                'url' => $paApiData[$asin]['DetailPageURL'] ?? '#',
+                'image_url' => $paApiData[$asin]['Images']['Primary']['Large']['URL'] ?? '',
+                'image_width' => $paApiData[$asin]['Images']['Primary']['Large']['Width'] ?? null,
+                'image_height' => $paApiData[$asin]['Images']['Primary']['Large']['Height'] ?? null,
                 'price' => (float)$price,
                 'discounted_price' => (float)$discountedPrice,
-                'discount_percentage' => round(($discountedPrice / $price) * 100)
             ];
 
-            $totalNormalPrice += $price;
-            $totalDiscountedPrice += $discountedPrice;
+            if ($price !== null) {
+                $totalNormalPrice += $price;
+                $totalDiscountedPrice += $discountedPrice;
+            }
         }
 
         $monthlySavings = $totalNormalPrice - $totalDiscountedPrice;
@@ -62,10 +54,7 @@ class SimulationEngine
             'total_normal_price' => $totalNormalPrice,
             'total_discounted_price' => $totalDiscountedPrice,
             'monthly_savings' => $monthlySavings,
-            'yearly_savings' => $monthlySavings * 12,
-            'item_count' => count($simulatedProducts),
-            'discount_rate_applied' => $discountRate,
-            'discount_rate_percent' => round((1 - ($totalDiscountedPrice / $totalNormalPrice)) * 100)
+            'yearly_savings' => $monthlySavings * 12
         ];
     }
 }

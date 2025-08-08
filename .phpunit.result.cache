@@ -1,0 +1,1 @@
+{"version":1,"defects":{"Tests\\SimulationEngineTest::testSimulationWithNoPriceData":5},"times":{"Tests\\SimulationEngineTest::testSimulationWithBulkDiscount":0.013,"Tests\\SimulationEngineTest::testSimulationWithNoPriceData":0.001}}
