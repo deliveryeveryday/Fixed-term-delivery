@@ -5,7 +5,7 @@ namespace App;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
-use Twig\TwigFilter; // ★ number_formatフィルタのために追加
+use Twig\TwigFilter;
 
 class HtmlRenderer
 {
@@ -16,7 +16,6 @@ class HtmlRenderer
         $loader = new FilesystemLoader($templatesPath);
         $this->twig = new Environment($loader);
         
-        // ★★★ 依存関係を断ち切り、自己完結させるための修正 ★★★
         $this->addCustomFunctionsAndFilters();
     }
 
@@ -39,11 +38,11 @@ class HtmlRenderer
      */
     private function addCustomFunctionsAndFilters(): void
     {
-        // --- カスタム関数 ---
+        // --- カスタム関数: picture_tag ---
         $this->twig->addFunction(new TwigFunction('picture_tag', function ($product, $context = []) {
-            // 依存していたgenerateAltTextのロジックを、このクラスの責務として内包する
+            // ALTテキスト生成ロジック
             $baseTitle = $product['title'] ?? '注目商品';
-            $prefix = '【シミュレーション対象】'; // CONTEXTに応じて変更可能
+            $prefix = '【シミュレーション対象】';
             $altText = htmlspecialchars($prefix . $baseTitle . ' - Fixed-term delivery');
 
             $imageUrl = $product['image_url'] ?? '';
@@ -63,11 +62,11 @@ class HtmlRenderer
             return $html;
         }));
 
-        // --- カスタムフィルタ ---
-        // 依存していたformatPriceの代わりに、Twig標準のnumber_formatフィルタを利用する
-        // テンプレート側で {{ number|number_format(0, '.', ',') }} のように使う
-        // より使いやすくするため、'format_price'という名前のカスタムフィルタとして登録する
+        // --- カスタムフィルタ: format_price ---
         $this->twig->addFilter(new TwigFilter('format_price', function ($number) {
+            if (!is_numeric($number)) {
+                return '';
+            }
             return '￥' . number_format($number);
         }));
     }
