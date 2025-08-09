@@ -7,8 +7,7 @@
         "guzzlehttp/guzzle": "^7.5",
         "twig/twig": "^3.4",
         "symfony/yaml": "^6.1",
-        "erusev/parsedown": "^1.7",
-        "monolog/monolog": "^3.5"
+        "erusev/parsedown": "^1.7"
     },
     "autoload": {
         "psr-4": {
