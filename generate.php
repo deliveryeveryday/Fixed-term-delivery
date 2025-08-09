@@ -8,7 +8,7 @@ use App\PaApiHandler;
 use App\SimulationEngine;
 use App\HtmlRenderer;
 use App\Logger;
-// ★ Parsedownとtemplate_helpers.phpへの依存を完全に削除
+use Parsedown; // 共通パーツ解析用に直接利用
 
 $config = require __DIR__ . '/config.php';
 $logger = Logger::getInstance($config['logging']);
@@ -29,16 +29,20 @@ function buildJsonLdItemList(array $products): array {
     return ['@context' => 'https://schema.org/', '@type' => 'ItemList', 'itemListElement' => $itemListElement];
 }
 
+require_once __DIR__ . '/src/template_helpers.php';
+
 try {
-    $contentParser = new ContentParser(__DIR__ . '/content/scenarios');
+    $contentParser = new ContentParser();
     $paApiHandler = new PaApiHandler($config, $logger);
     $simulationEngine = new SimulationEngine($config['simulation']);
     $htmlRenderer = new HtmlRenderer(__DIR__ . '/templates');
 
-    $authorProfileData = $contentParser->parse(__DIR__ . '/content/partials/author-profile.md'); // ★ ContentParserで解析
-    $pillarContentData = $contentParser->parse(__DIR__ . '/content/partials/pillar-content.md'); // ★ ContentParserで解析
+    // 共通パーツを直接解析
+    $parsedown = new Parsedown();
+    $authorProfileHtml = $parsedown->text(file_get_contents(__DIR__ . '/content/partials/author-profile.md'));
+    $pillarContentHtml = $parsedown->text(file_get_contents(__DIR__ . '/content/partials/pillar-content.md'));
 
-    $scenarios = $contentParser->parseAllScenarios();
+    $scenarios = $contentParser->parseAllScenarios(__DIR__ . '/content/scenarios');
     $scenariosBySlug = [];
     foreach ($scenarios as $scenario) {
         if (isset($scenario['meta']['slug'])) {
@@ -86,7 +90,7 @@ try {
             'scenario' => $scenario,
             'simulation' => $simulationResult,
             'json_ld' => $jsonLd,
-            'author_profile' => $authorProfileData,
+            'author_profile_html' => $authorProfileHtml,
             'related_scenarios' => $relatedScenariosData
         ];
         
@@ -106,7 +110,7 @@ try {
         'title' => '【年間2.4万円節約】Amazon定期おトク便 完全攻略ガイド｜Fixed-term delivery',
         'description' => 'Amazon定期おトク便の賢い使い方を徹底解説。おまとめ割引で最大15%OFFにする方法や、子育て・健康・ペットなどライフスタイル別の節約シミュレーションで、あなたの家計をサポートします。',
         'scenarios' => $renderedScenariosForIndex,
-        'pillar_content' => $pillarContentData
+        'pillar_content_html' => $pillarContentHtml
     ];
     $htmlRenderer->renderAndSave('index.html', $indexData, __DIR__ . '/public/index.html');
 
