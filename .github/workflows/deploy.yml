@@ -1,46 +1,47 @@
 name: Build and Deploy to GitHub Pages
+
 on:
   push:
     branches: ["main"]
   workflow_dispatch:
+
 permissions:
   contents: read
   pages: write
   id-token: write
+
 concurrency:
   group: "pages"
   cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
           tools: composer:v2
+      
       - name: Install Dependencies
         run: composer install --prefer-dist --no-progress
+        
       - name: Run Site Generator Script
         env:
           PAAPI_ACCESS_KEY: ${{ secrets.PAAPI_ACCESS_KEY }}
           PAAPI_SECRET_KEY: ${{ secrets.PAAPI_SECRET_KEY }}
           PAAPI_ASSOCIATE_TAG: ${{ secrets.PAAPI_ASSOCIATE_TAG }}
         run: php generate.php
-      
-      # ★★★ 静的ファイルをpublicにコピーする仕上げ作業 ★★★
-      - name: Copy static assets
-        run: |
-          cp style.css public/
-          mkdir -p public/images
-          cp -r images/* public/images/
-      
+        
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: './public'
+
   deploy:
     environment:
       name: github-pages
