@@ -6,12 +6,12 @@
     <title>{{ title }}</title>
     <meta name="description" content="{{ description }}">
     
-    <!-- ファビコン設定 (相対パスに修正) -->
+    <!-- ファビコン設定 (相対パス) -->
     <link rel="icon" href="./favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./apple-touch-icon.png">
     <link rel="shortcut icon" href="./favicon.ico">
 
-    <!-- CSSの読み込み (相対パスに修正) -->
+    <!-- CSSの読み込み (相対パス) -->
     <link rel="stylesheet" href="./style.css">
 
     <!-- Google Analytics (IDはご自身のものにしてください) -->
@@ -33,7 +33,18 @@
 <body>
     <header class="site-header">
         <div class="container">
-            {# トップページへのリンク。相対パスなので "./" または単に "/" でも可 #}
             <a href="./" class="logo-link" title="トップページへ戻る">
-                {# ロゴ画像 (相対パスに修正) #}
                 <img src="./logo.svg" alt="Fixed-term delivery ロゴ" class="logo">
+            </a>
+        </div>
+    </header>
+
+    {% block content %}{% endblock %}
+    
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; {{ "now"|date("Y") }} Fixed-term delivery. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

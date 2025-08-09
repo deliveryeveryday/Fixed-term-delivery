@@ -3,13 +3,12 @@
 {% block content %}
 <main class="container">
     <section class="hero-section">
-        {% if pillar_content.meta.title is defined %}
-            <h1>{{ pillar_content.meta.title }}</h1>
-        {% endif %}
-        {% if pillar_content.main_content_html is defined %}
+        {% if pillar_content_html is defined %}
             <div class="pillar-body">
-                {{ pillar_content.main_content_html|raw }}
+                {{ pillar_content_html|raw }}
             </div>
+        {% else %}
+            <h1>Fixed-term delivery</h1>
         {% endif %}
     </section>
 
@@ -18,17 +17,25 @@
         <p>あなたの生活に近いモデルケースをクリックして、具体的な節約額をご確認ください。</p>
         <div class="scenario-list">
             {% for s in scenarios %}
-            {# 各シナリオへのリンク (相対パスに修正) #}
             <a href="{{ s.url }}" class="scenario-card">
                 <div class="card-content">
                     <h3>{{ s.title }}</h3>
+                    {% if s.summary_html is not empty %}
                     <div class="scenario-summary">
                         {{ s.summary_html|raw }}
                     </div>
+                    {% endif %}
                 </div>
                 <div class="card-footer">
                     <span>年間節約額</span>
-                    <span class="savings-amount">{{ s.yearly_savings_str|raw }}</span>
+                    <span class="savings-amount">
+                        {# yearly_savings が存在し、数値である場合のみフォーマットする #}
+                        {% if s.yearly_savings is defined and s.yearly_savings is number %}
+                            {{ s.yearly_savings|format_price }}
+                        {% else %}
+                            ---
+                        {% endif %}
+                    </span>
                 </div>
             </a>
             {% endfor %}

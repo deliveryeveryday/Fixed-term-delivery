@@ -8,10 +8,20 @@
             <p class="description">{{ scenario.meta.description }}</p>
         </header>
 
-        <!-- Markdown本文をレンダリング -->
+        <!-- サマリー、メイン、FAQコンテンツをレンダリング -->
         <div class="content-body">
-            {{ scenario.summary_html|raw }}
-            {{ scenario.main_content_html|raw }}
+            {% if scenario.summary_html is not empty %}
+                {{ scenario.summary_html|raw }}
+                <hr>
+            {% endif %}
+            
+            {% if scenario.main_html is not empty %}
+                {{ scenario.main_html|raw }}
+            {% endif %}
+
+            {% if scenario.faq_html is not empty %}
+                {{ scenario.faq_html|raw }}
+            {% endif %}
         </div>
 
         <!-- 関連シナリオへの内部リンク -->
@@ -26,7 +36,7 @@
         </section>
         {% endif %}
 
-        <!-- ピラーページへの内部リンク (相対パスに修正) -->
+        <!-- ピラーページへの内部リンク -->
         <section class="pillar-link-section">
             <a href="./" class="back-to-pillar">
                 &laquo; Amazon定期おトク便 完全攻略ガイドに戻る
@@ -34,9 +44,9 @@
         </section>
 
         <!-- 著者プロフィールをレンダリング -->
-        {% if author_profile %}
+        {% if author_profile_html is not empty %}
         <section class="author-profile-section">
-            {{ author_profile.main_content_html|raw }}
+            {{ author_profile_html|raw }}
         </section>
         {% endif %}
 
