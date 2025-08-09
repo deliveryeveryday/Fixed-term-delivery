@@ -8,7 +8,7 @@ use App\PaApiHandler;
 use App\SimulationEngine;
 use App\HtmlRenderer;
 use App\Logger;
-use Parsedown; // 共通パーツ解析用に直接利用
+use Parsedown;
 
 $config = require __DIR__ . '/config.php';
 $logger = Logger::getInstance($config['logging']);
@@ -29,15 +29,12 @@ function buildJsonLdItemList(array $products): array {
     return ['@context' => 'https://schema.org/', '@type' => 'ItemList', 'itemListElement' => $itemListElement];
 }
 
-require_once __DIR__ . '/src/template_helpers.php';
-
 try {
     $contentParser = new ContentParser();
     $paApiHandler = new PaApiHandler($config, $logger);
     $simulationEngine = new SimulationEngine($config['simulation']);
     $htmlRenderer = new HtmlRenderer(__DIR__ . '/templates');
 
-    // 共通パーツを直接解析
     $parsedown = new Parsedown();
     $authorProfileHtml = $parsedown->text(file_get_contents(__DIR__ . '/content/partials/author-profile.md'));
     $pillarContentHtml = $parsedown->text(file_get_contents(__DIR__ . '/content/partials/pillar-content.md'));
