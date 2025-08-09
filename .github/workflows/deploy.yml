@@ -30,18 +30,13 @@ jobs:
           PAAPI_ASSOCIATE_TAG: ${{ secrets.PAAPI_ASSOCIATE_TAG }}
         run: php generate.php
       
-      # ★★★ ここからが追加の仕上げ作業 ★★★
-      - name: Copy static assets to public directory
+      # ★★★ 静的ファイルをpublicにコピーする仕上げ作業 ★★★
+      - name: Copy static assets
         run: |
-          # style.cssをpublicにコピー
           cp style.css public/
-          # imagesフォルダが存在すれば、中身ごとpublicにコピー
-          if [ -d "images" ]; then
-            mkdir -p public/images
-            cp -r images/* public/images/
-          fi
-      # ★★★ 仕上げ作業ここまで ★★★
-          
+          mkdir -p public/images
+          cp -r images/* public/images/
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
