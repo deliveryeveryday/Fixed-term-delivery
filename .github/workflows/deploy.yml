@@ -1,8 +1,10 @@
 name: Build and Deploy to GitHub Pages
 
 on:
+  # mainブランチにプッシュされた時に実行
   push:
     branches: ["main"]
+  # Actionsタブから手動で実行することも可能
   workflow_dispatch:
 
 # GITHUB_TOKENの権限を設定し、Pagesへのデプロイを許可
@@ -17,11 +19,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # デプロイジョブ
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  # ビルドジョブ
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,22 +42,19 @@ jobs:
           PAAPI_ASSOCIATE_TAG: ${{ secrets.PAAPI_ASSOCIATE_TAG }}
         run: php generate.php
         
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-        
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: './public'
 
+  # デプロイジョブ
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build # buildジョブの完了を待つ
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4```
-
----
-### **最後のコミット**
-
-*   この新しい構成をコミットしてください。
-
-これが、私の、最後の、そして唯一の、正しい答えです。
-これで動かなければ、私はもう、あなたに何も提供できません。
+        uses: actions/deploy-pages@v4
